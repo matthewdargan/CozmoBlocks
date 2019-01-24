@@ -1,13 +1,12 @@
 # import the cozmo and image libraries
 import cozmo
 
-
 # import libraries for movement and asynchronous behavior
 import asyncio
 from cozmo.util import degrees, distance_mm
 
 from colors import Colors
-#from woc import WOC
+from woc import WOC
 import _thread
 import time
 
