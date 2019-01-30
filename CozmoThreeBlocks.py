@@ -29,7 +29,7 @@ def cozmo_program(robot: cozmo.robot.Robot):
 	# we can adjust this to wait until 1, 2 or 3 cubes have been observed
 	cubes = robot.world.wait_until_observe_num_objects(3, object_type = cozmo.objects.LightCube, timeout = 60)
 	
-	robot.say_text("I found a cube").wait_for_completed()
+	robot.say_text("I found the cubes").wait_for_completed()
 	print("Found cubes: %s" % cubes)
 	
 	robot.set_all_backpack_lights(Colors.BLUE)
@@ -45,25 +45,28 @@ def cozmo_program(robot: cozmo.robot.Robot):
 		try:
 			robot.say_text("Tap a cube so I know you are paying attention.").wait_for_completed()
 
-			for cube in cubes:
-				cube.wait_for_tap(timeout=20)
+			# wait for one of the cubes to be tapped
+			cube_tapped = robot.wait_for(cozmo.objects.EvtObjectTapped)
 		except asyncio.TimeoutError:
 			robot.say_text("No one tapped a cube.").wait_for_completed()
 			print("No one tapped a cube :-(")
 		finally:
-			if cozmo.objects.LightCube.cube_id == 1:
+			if cube_tapped.obj.object_id == 1:
 				robot.say_text("Block 1 was tapped.").wait_for_completed()
-			elif cozmo.objects.LightCube.cube_id == 2:
+			elif cube_tapped.obj.object_id == 2:
 				robot.say_text("Cube 2 was tapped.").wait_for_completed()
-			else:
+			elif cube_tapped.obj.object_id == 3:
 				robot.play_anim("anim_petdetection_dog_03").wait_for_completed()
 
-			cubes.set_lights(Colors.RED)
+			for cube in cubes:
+				cube.set_lights(Colors.RED)
+			
 			robot.set_all_backpack_lights(Colors.RED)
-			robot.say_text("A cube was tapped").wait_for_completed()
 			cozmoString = "I am tired of this program."
 			robot.say_text(cozmoString).wait_for_completed()
-			cubes.set_lights_off()
+
+			for cube in cubes:
+				cube.set_lights_off()
 
 			return
 
